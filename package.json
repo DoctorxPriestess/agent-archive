@@ -1,0 +1,11 @@
+{
+  "name": "dsh-agent-presets-archive",
+  "version": "1.0.0",
+  "description": "DSH (DeepSeek Harness) Agent Presets Archive (coder, code-review, sysadmin)",
+  "type": "module",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
