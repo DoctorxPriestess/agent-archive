@@ -51,25 +51,26 @@ DeepSeek Harness (DSH) 工业级 Agent 预设归档库。
 
 ---
 
-## ⚠️ 重要说明：本地环境差异与硬编码路径
+## 🌐 零硬编码与自动化环境探测设计
 
-本仓库归档的预设配置文件（[`cordis.patch.yml`](./cordis.patch.yml)）经过通用脱敏处理，去除了原宿主机的特定绝对工作区，但仍保留了必要的基础环境假定与部分硬编码路径：
-1. **`bashPath` 硬编码**：在 `dsh-ops-shell` 中硬编码了 Windows Git Bash 的常见路径 `'C:\Program Files\Git\bin\bash.exe'`。若您的 Git 安装在自定义路径，或已运行 `provision-shells`，请相应调整或移除该配置；
-2. **工作区动态绑定**：预设中统一绑定至动态工作区 `{{cwd}}`，工作区保护边界锁定为当前工作区；
-3. **系统运维备份基底**：在 `sysadmin` 中使用 `$env:USERPROFILE\.dsh\.dsh-changes\<timestamp>\` 标准环境变量目录存放状态物理备份；
-4. **系统引导救援示例**：包含标准 WinRE 盘符假设示例（如 `C:\Windows`、`mountvol S: /s`、`bcdedit /export`）；
-5. **平台依赖**：默认假定为 Windows 环境（禁用了 `tool-bash`，启用了 `tool-pwsh` 与 Windows 特性检测）。
+本仓库归档的预设配置文件（[`cordis.patch.yml`](./cordis.patch.yml)）经过严格的工程化通用化与脱敏处理，**彻底移除了任何特定宿主机的硬编码绝对路径**，遵循原生自适应原则：
+
+1. **Shell 零硬编码与多级自动探测**：`dsh-ops/shell` **未硬编码任何 `bashPath`**，而是通过 `allowSystemShellFallback: true` 启用 `dsh-ops` 原生的多级探测梯队（`provision-shells` 钉版上游副本 → 插件自带副本 → 系统 `PATH` → 注册表与常见包管理器如 Scoop/Choco/MSYS64/Git）。避免了硬编码路径因目标机安装盘符不符而直接报死的问题。
+2. **工作区动态绑定**：预设中统一绑定至动态工作区模板变量 `{{cwd}}`，工作区保护边界自动锁定为调用时的当前工作区，不绑定任何特定磁盘目录。
+3. **系统运维备份基底**：在 `sysadmin` 中完全使用 `$env:USERPROFILE\.dsh\.dsh-changes\<timestamp>\` 标准环境变量目录存放状态物理备份，自动随当前登录用户动态展开。
+4. **规范与示例解耦**：系统引导救援（如 `C:\Windows`、`mountvol S: /s`、`bcdedit /export`）仅作为应急状态机规范中的**语法操作示例（Illustration）**，并非配置项。
+5. **跨平台兼容开关**：通过 `disabled: !!js process.platform === 'win32'` 等 Cordis 表达式动态判定宿主 OS，原生支持按平台自适应调度。
 
 ---
 
 ## 🤖 推荐安装方式：让 AI Agent 协助本地化适配
 
-**强烈建议直接让您的 AI Agent（当前环境中的编程助手或系统运维 Agent）协助完成本仓库的安装与环境适配，而不是手动死板地修改配置。**
+虽然本仓库已做到**开箱即用的零硬编码**，但我们依然**强烈建议直接让您的 AI Agent（当前环境中的编程助手或系统运维 Agent）协助完成本仓库的安装与挂载**，以确保与宿主环境最佳整合：
 
-### 为什么推荐让 AI Agent 适配？
-1. **自动校准工作区路径**：AI Agent 能自动检测您当前机器的用户名主目录、系统盘符以及您习惯的工作区路径，并将预设规约与您的实际工作区完全对齐；
-2. **适配不同软件版本与依赖**：AI Agent 能嗅探当前机器的实际运行环境（如 Git Bash 实际安装位置、PowerShell 7 路径、跨平台 Bash 切换等），微调预设中相应的指令和工具开关；
-3. **自动接入 DSH 0.2.0 Profile**：AI Agent 能自动检查 `$env:USERPROFILE\.dsh\profiles\` 下的活动 profile（如 `desktop`），安全地将本地 bundle 链接写入 `package.json`，无缝挂载。
+### 为什么推荐让 AI Agent 协助？
+1. **自动完成生态依赖装配**：AI Agent 能一键执行 `dsh plugin add dsh-ops` 与 `npx dsh-ops@latest provision-shells --bash`，免去手动敲命令和排错；
+2. **自动接入 DSH 0.2.0 Profile**：AI Agent 能自动检查 `$env:USERPROFILE\.dsh\profiles\` 下的活动 profile（如 `desktop` 或 `web`），安全地将本地 bundle 链接写入 `package.json`，无缝完成热插拔挂载；
+3. **端到端工具链验收**：安装后由 Agent 自行执行 `ops_inspect_local_file` 与 `ops_bash` 连通性测试，确保 65%~97% 的 Token 节省特性即刻生效。
 
 ### 📋 复制给 AI Agent 的适配指令模板
 
@@ -77,11 +78,10 @@ DeepSeek Harness (DSH) 工业级 Agent 预设归档库。
 
 ```text
 请帮我把本仓库 (DoctorxPriestess/agent-archive) 中的 Agent 预设安装并适配到我当前的 DSH 0.2.0 环境中：
-1. 检查我当前操作系统的环境事实（主目录路径、默认工作区、Git Bash 安装位置、Shell 类型及工具链版本）；
-2. 检查并适配 cordis.patch.yml 中的路径配置（如 dsh-ops-shell 的 bashPath），将其对齐为我本机的实际工作区与环境；
-3. 检查我是否已安装并配置 dsh-ops 插件（运行 npx --yes dsh-ops@latest status，必要时执行 provision-shells --bash）；
-4. 将适配后的 Bundle 部署到我本机 DSH 的 plugin-bundles 目录中，并在当前 profile 的 package.json 中挂载；
-5. 检查是否有因平台差异（如 Linux/macOS vs Windows）需要调整的插件开关（tool-bash / tool-pwsh）。
+1. 检查我当前操作系统的环境事实（主目录路径、当前工作区、已配置的 profile 目录）；
+2. 检查我本机是否已安装并配置 dsh-ops 插件（运行 npx --yes dsh-ops@latest status，必要时执行 provision-shells --bash 确保 bash 底座就位）；
+3. 将本 Bundle 挂载到我本机 DSH 的 plugin-bundles 目录中，并在当前 profile 的 package.json 中配置引用；
+4. 验证新预设（coder, code-review, sysadmin）能否正常加载，并测试 dsh-ops 文件与终端工具调用链路。
 ```
 
 ---
