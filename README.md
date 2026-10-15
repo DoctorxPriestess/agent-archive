@@ -4,7 +4,7 @@ DeepSeek Harness (DSH) 工业级 Agent 预设归档库。
 
 > **适用版本**：**DSH 0.2.0**（基于 Cordis 插件容器体系与 `@deepseek-ai/dsh-agent-preset` Bundle 规范）。
 
-本仓库收录并归档了除专用演示文稿架构师（`ppt-architect`）之外的 **三大核心工业级 Agent 预设**：
+本仓库收录并归档了**三大核心工业级 Agent 预设**：
 1. **`coder`（编程助手）**：稳健优先的全能编程架构师
 2. **`code-review`（代码安全审查）**：零破坏性只读代码安全审查专家
 3. **`sysadmin`（Windows 系统配置与运维）**：状态机驱动的系统级运维专家
