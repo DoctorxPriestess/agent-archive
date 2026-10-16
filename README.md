@@ -20,7 +20,7 @@ DeepSeek Harness (DSH) 工业级 Agent 预设归档库。
 ### 1. `dsh-ops` 算力与工具下沉套件（强制推荐）
 - **项目仓库**：[T-Auto/dsh-ops](https://github.com/T-Auto/dsh-ops)
 - **依赖角色**：**核心 Token 节约与工具执行底座**。
-  - **`dsh-ops/file`**：提供 Rust 编写的四项高性能文件工具（`ops_inspect_local_file` 有界行范围读取、`ops_grep` 正则检索、`ops_glob` 路径匹配、`ops_replace` 批量替换）。阻断模型无节制地整文件倾倒（wholesale file dumps）进主上下文，实测相比原生工具可节约 **65% ~ 97%** 的 Token 消耗。
+  - **`dsh-ops/file`**：提供 Rust 编写的四项高性能文件工具（`ops_inspect_local_file` 有界行范围读取、`ops_grep` 正则检索、`ops_glob` 路径匹配、`ops_replace` 批量替换）。阻断模型无节制地整文件倾倒  （wholesale file dumps）进主上下文，实测相比原生工具可节约 **65% ~ 97%** 的 Token 消耗。
   - **`dsh-ops/shell`**：提供与 Windows MSYS IPC 兼容的私有 `ops_bash` 执行器（短命令走内联，>1KB 或复杂引号走 `script_path` 脚本文件执行）。
   - **`dsh-ops/ptc`**：提供纯 PTC 运行时的 `ops_batch` 安全批处理与 **`ops_result` 有界结果投影**，防止子进程输出反噬主会话。
 - **快速安装与 Shell 载荷准备**：
@@ -55,7 +55,7 @@ DeepSeek Harness (DSH) 工业级 Agent 预设归档库。
 
 本仓库归档的预设配置文件（[`cordis.patch.yml`](./cordis.patch.yml)）经过严格的工程化通用化与脱敏处理，**彻底移除了任何特定宿主机的硬编码绝对路径**，遵循原生自适应原则：
 
-1. **Shell 零硬编码与多级自动探测**：`dsh-ops/shell` **未硬编码任何 `bashPath`**，而是通过 `allowSystemShellFallback: true` 启用 `dsh-ops` 原生的多级探测梯队（`provision-shells` 钉版上游副本 → 插件自带副本 → 系统 `PATH` → 注册表与常见包管理器如 Scoop/Choco/MSYS64/Git）。避免了硬编码路径因目标机安装盘符不符而直接报死的问题。
+1. **Shell 零硬编码与多级自动探测**：`dsh-ops/shell` **未硬编码任何 `Path`**，而是通过 `allowSystemShellFallback: true` 启用 `dsh-ops` 原生的多级探测梯队（`provision-shells` 钉版上游副本 → 插件自带副本 → 系统 `PATH` → 注册表与常见包管理器如 Scoop/Choco/MSYS64/Git）。避免了硬编码路径因目标机安装盘符不符而直接报死的问题。
 2. **工作区动态绑定**：预设中统一绑定至动态工作区模板变量 `{{cwd}}`，工作区保护边界自动锁定为调用时的当前工作区，不绑定任何特定磁盘目录。
 3. **系统运维备份基底**：在 `sysadmin` 中完全使用 `$env:USERPROFILE\.dsh\.dsh-changes\<timestamp>\` 标准环境变量目录存放状态物理备份，自动随当前登录用户动态展开。
 4. **规范与示例解耦**：系统引导救援（如 `C:\Windows`、`mountvol S: /s`、`bcdedit /export`）仅作为应急状态机规范中的**语法操作示例（Illustration）**，并非配置项。
